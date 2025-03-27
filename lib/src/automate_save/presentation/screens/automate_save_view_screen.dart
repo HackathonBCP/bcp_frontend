@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class AutomateSaveScreen extends StatelessWidget {
+class AutomateSaveViewScreen extends StatelessWidget {
   final double savingsThisMonth = 150;
   final double savingsGoal = 300;
   final double dailySavings = 5.0;
@@ -14,7 +14,7 @@ class AutomateSaveScreen extends StatelessWidget {
   static const _grayText = Color(0xFF91919F);
   static const _successColor = Color(0xFF00A86B);
 
-  const AutomateSaveScreen({super.key});
+  const AutomateSaveViewScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
