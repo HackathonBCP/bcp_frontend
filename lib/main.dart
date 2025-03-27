@@ -1,4 +1,4 @@
-import 'package:bcp_frontend/constants.dart';
+import 'package:bcp_frontend/src/automate_save/presentation/screens/automate_save_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -11,7 +11,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: SavingsScreen(),
+      home: AutomateSaveScreen(),
     );
   }
 }
