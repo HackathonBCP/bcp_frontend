@@ -1,5 +1,6 @@
 import 'package:bcp_frontend/src/automate_save/presentation/screens/automate_save_settings_screen.dart';
 import 'package:bcp_frontend/src/automate_save/presentation/screens/automate_save_view_screen.dart';
+import 'package:bcp_frontend/src/challengue/presentation/screens/challenge_screen.dart';
 import 'package:bcp_frontend/src/home/presentation/screens/finance_dashboard_screen.dart';
 import 'package:bcp_frontend/src/home/presentation/screens/finance_section.dart';
 import 'package:flutter/material.dart';
@@ -13,9 +14,9 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'BCP',
-      home: FinanceDashboardScreen(),
+      home: ChallengeScreen(),
     );
   }
 }
