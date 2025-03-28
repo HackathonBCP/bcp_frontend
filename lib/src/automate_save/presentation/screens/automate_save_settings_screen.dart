@@ -11,22 +11,64 @@ class AutomateSaveSettingsScreen extends StatefulWidget {
 class _AutomateSaveSettingsScreenState
     extends State<AutomateSaveSettingsScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _goalController =
-      TextEditingController(text: '1000');
-  final TextEditingController _dailyController =
-      TextEditingController(text: '8');
+  final TextEditingController _goalController = TextEditingController();
+  final TextEditingController _categoryController = TextEditingController();
+  final TextEditingController _percentageController = TextEditingController();
   String _selectedFrequency = 'Diario';
-  bool _useRecommendation = false;
+  bool _useRecommendation = true;
+  bool _isManualPercentage = false;
+  String? _selectedCategory;
+  final List<String> _defaultCategories = [
+    'Vacaciones',
+    'Emergencias',
+    'Educación',
+    'Otros'
+  ];
+  final List<String> _customCategories = [];
+  final double _maxRecommendedPercentage = 5.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _calculateRecommendedPercentage();
+  }
 
   @override
   void dispose() {
     _goalController.dispose();
-    _dailyController.dispose();
+    _categoryController.dispose();
+    _percentageController.dispose();
     super.dispose();
+  }
+
+  void _calculateRecommendedPercentage() {
+    final randomPercentage =
+        (DateTime.now().millisecond % 100) / 100 * _maxRecommendedPercentage;
+
+    setState(() {
+      if (!_isManualPercentage) {
+        _percentageController.text = randomPercentage.toStringAsFixed(2);
+      }
+    });
+  }
+
+  void _deleteCategory(String category) {
+    if (_customCategories.contains(category)) {
+      setState(() {
+        _customCategories.remove(category);
+        if (_selectedCategory == category) {
+          _selectedCategory = _defaultCategories.isNotEmpty
+              ? _defaultCategories.first
+              : (_customCategories.isNotEmpty ? _customCategories.first : null);
+        }
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final allCategories = [..._defaultCategories, ..._customCategories];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Configura tu ahorro automático',
@@ -53,9 +95,11 @@ class _AutomateSaveSettingsScreenState
             children: [
               _buildRecommendationCard(),
               const SizedBox(height: 24),
+              _buildCategorySection(allCategories),
+              const SizedBox(height: 24),
               _buildSavingsGoalSection(),
               const SizedBox(height: 24),
-              _buildDailyAmountSection(),
+              _buildPercentageSection(),
               const SizedBox(height: 24),
               _buildFrequencySection(),
               const SizedBox(height: 32),
@@ -74,10 +118,9 @@ class _AutomateSaveSettingsScreenState
       onTap: () {
         setState(() {
           _useRecommendation = !_useRecommendation;
+          _isManualPercentage = !_useRecommendation;
           if (_useRecommendation) {
-            _dailyController.text = '8';
-            _goalController.text = '1000';
-            _selectedFrequency = 'Diario';
+            _calculateRecommendedPercentage();
           }
         });
       },
@@ -134,8 +177,8 @@ class _AutomateSaveSettingsScreenState
             const SizedBox(height: 12),
             Text(
               _useRecommendation
-                  ? 'Ahorro configurado: S/8 diarios (meta: S/1000)'
-                  : 'Basado en tu flujo de ingresos, podrías ahorrar S/ 8 diarios manteniendo un balance saludable para tu negocio.',
+                  ? 'Basado en tu historial, te recomendamos ahorrar entre 0% y ${_maxRecommendedPercentage.toStringAsFixed(0)}% de tus ingresos'
+                  : 'Estás configurando manualmente tu ahorro',
               style: const TextStyle(
                 fontSize: 16,
                 color: Colors.black87,
@@ -149,10 +192,9 @@ class _AutomateSaveSettingsScreenState
                 onPressed: () {
                   setState(() {
                     _useRecommendation = !_useRecommendation;
+                    _isManualPercentage = !_useRecommendation;
                     if (_useRecommendation) {
-                      _dailyController.text = '8';
-                      _goalController.text = '1000';
-                      _selectedFrequency = 'Diario';
+                      _calculateRecommendedPercentage();
                     }
                   });
                 },
@@ -165,7 +207,7 @@ class _AutomateSaveSettingsScreenState
                   backgroundColor: const Color(0xFF9B4DFF).withOpacity(0.1),
                 ),
                 child: Text(
-                  _useRecommendation ? 'Personalizar' : 'Aplicar recomendación',
+                  _useRecommendation ? 'Personalizar' : 'Usar recomendación IA',
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -177,6 +219,136 @@ class _AutomateSaveSettingsScreenState
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildCategorySection(List<String> allCategories) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Categoría de ahorro',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButtonFormField<String>(
+              value: _selectedCategory,
+              isExpanded: true,
+              items: [
+                ...allCategories.map((category) => DropdownMenuItem(
+                      value: category,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              category,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (_customCategories.contains(category))
+                            IconButton(
+                              icon: const Icon(Icons.delete,
+                                  size: 18, color: Colors.red),
+                              onPressed: () => _deleteCategory(category),
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                            ),
+                        ],
+                      ),
+                    )),
+                const DropdownMenuItem(
+                  value: 'Nueva categoría',
+                  child: Text('Crear nueva categoría'),
+                ),
+              ],
+              onChanged: (value) {
+                if (value == 'Nueva categoría') {
+                  _showNewCategoryDialog();
+                } else if (value != null) {
+                  setState(() {
+                    _selectedCategory = value;
+                  });
+                }
+              },
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
+                hintText: 'Selecciona una categoría',
+              ),
+              validator: (value) {
+                if (value == null ||
+                    value.isEmpty ||
+                    value == 'Nueva categoría') {
+                  return 'Selecciona una categoría válida';
+                }
+                return null;
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showNewCategoryDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Nueva categoría'),
+          content: TextField(
+            controller: _categoryController,
+            decoration: const InputDecoration(
+              labelText: 'Nombre de la categoría',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (_categoryController.text.trim().isNotEmpty) {
+                  setState(() {
+                    _customCategories.add(_categoryController.text.trim());
+                    _selectedCategory = _categoryController.text.trim();
+                    _categoryController.clear();
+                  });
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -194,10 +366,10 @@ class _AutomateSaveSettingsScreenState
         ),
         const SizedBox(height: 12),
         Container(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.05),
@@ -206,8 +378,8 @@ class _AutomateSaveSettingsScreenState
               ),
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Text(
                 'S/',
@@ -217,62 +389,36 @@ class _AutomateSaveSettingsScreenState
                   color: Colors.black54,
                 ),
               ),
-              const SizedBox(height: 4),
-              TextFormField(
-                controller: _goalController,
-                keyboardType: TextInputType.number,
-                style: const TextStyle(
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF9B4DFF),
-                  height: 1,
-                ),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding: EdgeInsets.zero,
-                  hintText: '1000',
-                  hintStyle: TextStyle(
-                    fontSize: 40,
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextFormField(
+                  controller: _goalController,
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF9B4DFF),
+                    height: 1.5,
                   ),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: '1000',
+                    hintStyle: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF9B4DFF),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Ingresa una meta';
+                    }
+                    if (double.tryParse(value) == null) {
+                      return 'Ingresa un número válido';
+                    }
+                    return null;
+                  },
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Ingresa una meta';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Ingresa un número válido';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              Divider(
-                color: Colors.grey.shade200,
-                height: 1,
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Tiempo estimado',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  Text(
-                    _calculateEstimatedTime(),
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ],
               ),
             ],
           ),
@@ -281,12 +427,12 @@ class _AutomateSaveSettingsScreenState
     );
   }
 
-  Widget _buildDailyAmountSection() {
+  Widget _buildPercentageSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Monto diario',
+          'Porcentaje a ahorrar',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w800,
@@ -295,10 +441,10 @@ class _AutomateSaveSettingsScreenState
         ),
         const SizedBox(height: 12),
         Container(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.05),
@@ -307,77 +453,57 @@ class _AutomateSaveSettingsScreenState
               ),
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              const Text(
-                'S/',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black54,
-                ),
-              ),
-              const SizedBox(height: 4),
-              TextFormField(
-                controller: _dailyController,
-                keyboardType: TextInputType.number,
-                style: const TextStyle(
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF9B4DFF),
-                  height: 1,
-                ),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding: EdgeInsets.zero,
-                  hintText: '8',
-                  hintStyle: TextStyle(
-                    fontSize: 40,
+              Expanded(
+                child: TextFormField(
+                  controller: _percentageController,
+                  keyboardType: TextInputType.number,
+                  enabled: _isManualPercentage,
+                  style: const TextStyle(
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF9B4DFF),
                   ),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: '0',
+                    suffixText: '%',
+                    suffixStyle: TextStyle(
+                      fontSize: 24,
+                      color: Colors.black54,
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Ingresa un porcentaje';
+                    }
+                    final percentage = double.tryParse(value);
+                    if (percentage == null) {
+                      return 'Ingresa un número válido';
+                    }
+                    if (percentage < 0 ||
+                        percentage > _maxRecommendedPercentage) {
+                      return 'Debe ser entre 0% y ${_maxRecommendedPercentage}%';
+                    }
+                    return null;
+                  },
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Ingresa un monto';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Ingresa un número válido';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              Divider(
-                color: Colors.grey.shade200,
-                height: 1,
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Alcanzarás tu meta en',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  Text(
-                    _calculateEstimatedTime(),
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ],
               ),
             ],
           ),
         ),
+        if (_useRecommendation)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              'Recomendación: 0% - ${_maxRecommendedPercentage.toStringAsFixed(0)}%',
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -403,6 +529,15 @@ class _AutomateSaveSettingsScreenState
             const SizedBox(width: 12),
             _buildFrequencyButton('Mensual'),
           ],
+        ),
+        const SizedBox(height: 16),
+        Text(
+          _getEstimatedTimeText(),
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.grey,
+          ),
+          textAlign: TextAlign.center,
         ),
       ],
     );
@@ -443,20 +578,46 @@ class _AutomateSaveSettingsScreenState
     );
   }
 
+  String _getEstimatedTimeText() {
+    final goal = double.tryParse(_goalController.text) ?? 0;
+    final percentage = double.tryParse(_percentageController.text) ?? 0;
+
+    if (goal <= 0 || percentage <= 0) {
+      return 'Ingresa meta y porcentaje para ver estimación';
+    }
+
+    const monthlyIncome = 1000;
+    final monthlySaving = monthlyIncome * percentage / 100;
+
+    if (monthlySaving <= 0) return 'El porcentaje debe ser mayor a 0%';
+
+    double totalMonths = goal / monthlySaving;
+    double totalDays = totalMonths * 30;
+
+    if (_selectedFrequency == 'Diario') {
+      totalDays = goal / (monthlySaving / 30);
+    } else if (_selectedFrequency == 'Semanal') {
+      totalDays = goal / (monthlySaving / 4) * 7;
+    }
+
+    if (totalDays >= 365) {
+      return 'Alcanzarás tu meta en aproximadamente ${(totalDays / 365).toStringAsFixed(1)} años';
+    } else if (totalDays >= 30) {
+      return 'Alcanzarás tu meta en aproximadamente ${(totalDays / 30).toStringAsFixed(1)} meses';
+    } else if (totalDays >= 7) {
+      return 'Alcanzarás tu meta en aproximadamente ${(totalDays / 7).toStringAsFixed(1)} semanas';
+    } else {
+      return 'Alcanzarás tu meta en aproximadamente ${totalDays.toStringAsFixed(1)} días';
+    }
+  }
+
   Widget _buildStartSavingButton() {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
           if (_formKey.currentState?.validate() ?? false) {
-            // Procesar el formulario
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                    'Ahorro automático configurado: S/${_dailyController.text} $_selectedFrequency'),
-                backgroundColor: const Color(0xFF9B4DFF),
-              ),
-            );
+            Navigator.pushNamed(context, '/categories');
           }
         },
         style: ElevatedButton.styleFrom(
@@ -488,42 +649,19 @@ class _AutomateSaveSettingsScreenState
   }
 
   Widget _buildFooterNote() {
-    final dailyAmount = double.tryParse(_dailyController.text) ?? 0;
-    final frequencyText = _selectedFrequency.toLowerCase();
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Text(
-        dailyAmount > 0
-            ? 'Yape apartará automáticamente S/ $dailyAmount cada $frequencyText'
-            : 'Configura tu plan de ahorro automático',
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          fontSize: 14,
-          color: Colors.grey,
-          height: 1.4,
+    return Center(
+      child: TextButton(
+        onPressed: () {
+          Navigator.pushNamed(context, '/categories');
+        },
+        child: const Text(
+          'Ver mis categorías de ahorro',
+          style: TextStyle(
+            color: Color(0xFF9B4DFF),
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );
-  }
-
-  String _calculateEstimatedTime() {
-    final goal = double.tryParse(_goalController.text) ?? 0;
-    final daily = double.tryParse(_dailyController.text) ?? 0;
-
-    if (goal <= 0 || daily <= 0) return '-- días';
-
-    int days = (goal / daily).ceil();
-
-    // Ajustar según frecuencia seleccionada
-    if (_selectedFrequency == 'Semanal') {
-      days = (days / 7).ceil();
-      return '$days semanas';
-    } else if (_selectedFrequency == 'Mensual') {
-      days = (days / 30).ceil();
-      return '$days meses';
-    }
-
-    return '$days días';
   }
 }
