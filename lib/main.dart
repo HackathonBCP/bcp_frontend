@@ -35,7 +35,7 @@ class MainApp extends StatelessWidget {
             builder = (BuildContext context) => FinanceSectionScreen();
             break;
           case '/finance_dashboard':
-            builder = (BuildContext context) => FinanceDashboardScreen();
+            builder = (BuildContext context) => const FinanceDashboardScreen();
             break;
           case '/extras':
             builder = (BuildContext context) => const ExtrasScreen();
