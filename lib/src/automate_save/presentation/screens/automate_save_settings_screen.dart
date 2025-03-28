@@ -484,7 +484,7 @@ class _AutomateSaveSettingsScreenState
                     }
                     if (percentage < 0 ||
                         percentage > _maxRecommendedPercentage) {
-                      return 'Debe ser entre 0% y ${_maxRecommendedPercentage}%';
+                      return 'Debe ser entre 0% y $_maxRecommendedPercentage%';
                     }
                     return null;
                   },
@@ -617,7 +617,7 @@ class _AutomateSaveSettingsScreenState
       child: ElevatedButton(
         onPressed: () {
           if (_formKey.currentState?.validate() ?? false) {
-            Navigator.pushNamed(context, '/categories');
+            Navigator.pushNamed(context, '/automate_save_view');
           }
         },
         style: ElevatedButton.styleFrom(
@@ -652,7 +652,7 @@ class _AutomateSaveSettingsScreenState
     return Center(
       child: TextButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/categories');
+          Navigator.pushNamed(context, '/automate_save_view');
         },
         child: const Text(
           'Ver mis categorías de ahorro',
