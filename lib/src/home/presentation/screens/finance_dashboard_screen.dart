@@ -18,6 +18,7 @@ class _FinanceDashboardScreenState extends State<FinanceDashboardScreen> {
       "icon": LucideIcons.piggyBank,
       "iconColor": Colors.green,
       "glowColor": Colors.purpleAccent.withOpacity(0.3),
+      "route": "/automate_save_settings",
     },
     {
       "title": "Reto 30 días",
@@ -26,14 +27,16 @@ class _FinanceDashboardScreenState extends State<FinanceDashboardScreen> {
       "icon": LucideIcons.target,
       "iconColor": Colors.blue,
       "glowColor": Colors.pinkAccent.withOpacity(0.3),
+      "route": "/challenge",
     },
     {
-      "title": "Ahorro por Ingresos",
-      "subtitle": "Guarda un % de tus Yapeos",
-      "amount": "10% por ingreso",
-      "icon": LucideIcons.trendingUp,
+      "title": "Ahorro con Amigas",
+      "subtitle": "Ahorren y motivense juntas",
+      "amount": "S/ 400 ahorrados",
+      "icon": LucideIcons.users,
       "iconColor": Colors.orange,
       "glowColor": Colors.deepPurple.withOpacity(0.3),
+      "route": "/save_with_friends",
     },
     {
       "title": "Reto 10 soles",
@@ -42,6 +45,7 @@ class _FinanceDashboardScreenState extends State<FinanceDashboardScreen> {
       "icon": LucideIcons.trophy,
       "iconColor": Colors.purple,
       "glowColor": Colors.purple.withOpacity(0.3),
+      "route": "/weekly-challenge",
     },
     {
       "title": "Fondo de Emergencia",
@@ -50,6 +54,7 @@ class _FinanceDashboardScreenState extends State<FinanceDashboardScreen> {
       "icon": LucideIcons.shieldCheck,
       "iconColor": Colors.red,
       "glowColor": Colors.pink.withOpacity(0.3),
+      "route": "/emergency-fund",
     },
     {
       "title": "Beneficios Desbloqueados",
@@ -58,8 +63,19 @@ class _FinanceDashboardScreenState extends State<FinanceDashboardScreen> {
       "icon": LucideIcons.gift,
       "iconColor": Colors.pink,
       "glowColor": Colors.pinkAccent.withOpacity(0.3),
+      "route": "/benefits",
     },
   ];
+
+  void _navigateToRoute(BuildContext context, String? route) {
+    if (route != null && route.isNotEmpty) {
+      Navigator.pushNamed(context, route);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ruta no disponible')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -323,9 +339,12 @@ class _FinanceDashboardScreenState extends State<FinanceDashboardScreen> {
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 15),
                 ),
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  Navigator.pop(context);
+                  _navigateToRoute(context, item["route"]);
+                },
                 child: const Text(
-                  'ENTENDIDO',
+                  'CONTINUAR',
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,

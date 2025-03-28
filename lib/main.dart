@@ -1,5 +1,6 @@
 import 'package:bcp_frontend/src/automate_save/presentation/screens/automate_save_settings_screen.dart';
 import 'package:bcp_frontend/src/automate_save/presentation/screens/automate_save_view_screen.dart';
+import 'package:bcp_frontend/src/challengue/presentation/screens/challenge_screen.dart';
 import 'package:bcp_frontend/src/chat/presentation/screens/chat_screen.dart';
 import 'package:bcp_frontend/src/chat/presentation/screens/comments_screen.dart';
 import 'package:bcp_frontend/src/extras/presentation/screens/extras_screen.dart';
@@ -52,6 +53,9 @@ class MainApp extends StatelessWidget {
             break;
           case '/automate_save_view':
             builder = (BuildContext context) => const AutomateSaveViewScreen();
+            break;
+          case '/challenge':
+            builder = (BuildContext context) => const ChallengeScreen();
             break;
           default:
             throw Exception('Invalid route: ${settings.name}');
