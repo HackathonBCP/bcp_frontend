@@ -4,6 +4,7 @@ import 'package:bcp_frontend/src/challengue/presentation/screens/challenge_scree
 import 'package:bcp_frontend/src/home/presentation/screens/finance_dashboard_screen.dart';
 import 'package:bcp_frontend/src/chat/presentation/screens/chat_screen.dart';
 import 'package:bcp_frontend/src/chat/presentation/screens/comments_screen.dart';
+import 'package:bcp_frontend/src/extras/presentation/screens/extras_screen.dart';
 import 'package:bcp_frontend/src/home/presentation/screens/finance_section.dart';
 import 'package:flutter/material.dart';
 
@@ -16,8 +17,8 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: CommentsScreen(),
+    return const MaterialApp(
+      home: ExtrasScreen(),
     );
   }
 }
