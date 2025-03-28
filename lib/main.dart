@@ -2,6 +2,7 @@ import 'package:bcp_frontend/src/automate_save/presentation/screens/automate_sav
 import 'package:bcp_frontend/src/automate_save/presentation/screens/automate_save_view_screen.dart';
 import 'package:bcp_frontend/src/chat/presentation/screens/chat_screen.dart';
 import 'package:bcp_frontend/src/chat/presentation/screens/comments_screen.dart';
+import 'package:bcp_frontend/src/extras/presentation/screens/extras_screen.dart';
 import 'package:bcp_frontend/src/home/presentation/screens/finance_section.dart';
 import 'package:flutter/material.dart';
 
@@ -14,8 +15,8 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: CommentsScreen(),
+    return const MaterialApp(
+      home: ExtrasScreen(),
     );
   }
 }
