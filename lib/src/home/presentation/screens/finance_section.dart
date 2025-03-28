@@ -11,6 +11,8 @@ class FinanceSectionScreen extends StatelessWidget {
     {"title": "YapeAhorra", "icon": LucideIcons.piggyBank},
   ];
 
+  FinanceSectionScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
