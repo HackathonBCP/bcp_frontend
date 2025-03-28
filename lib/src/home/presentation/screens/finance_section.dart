@@ -16,95 +16,85 @@ class FinanceSectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF4F4F4),
       appBar: AppBar(
-        backgroundColor: Colors.purple,
+        backgroundColor: const Color(0xFF7B1FA2),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.close, color: Colors.white, size: 28),
+          onPressed: () {},
+        ),
         title: const Text(
           "Menú",
           style: TextStyle(
+            color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        children: [
+          Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            elevation: 0.5,
             color: Colors.white,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.close, size: 28, color: Colors.white),
-          onPressed: () {},
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 10.0),
-              child: Text(
-                "Finanzas",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.purple,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: Text(
+                    "Finanzas",
+                    style: TextStyle(
+                      color: Color(0xFF7B1FA2),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 1.2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                ),
-                itemCount: menuItems.length,
-                itemBuilder: (context, index) {
-                  return _menuItem(
-                    menuItems[index]["title"],
-                    menuItems[index]["icon"],
+                const SizedBox(height: 12),
+                const Divider(height: 1, thickness: 0.5),
+                ...menuItems.map((item) {
+                  final isLast = item == menuItems.last;
+                  return Column(
+                    children: [
+                      ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 4,
+                        ),
+                        leading: Icon(
+                          item['icon'],
+                          color: Colors.purple,
+                          size: 28,
+                        ),
+                        title: Text(
+                          item['title'],
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        onTap: () {
+                          if (item['title'] == "YapeAhorra") {
+                            Navigator.pushNamed(context, '/finance_dashboard');
+                          }
+                        },
+                      ),
+                      if (!isLast)
+                        const Divider(height: 1, indent: 16, endIndent: 16),
+                    ],
                   );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _menuItem(String title, IconData iconData) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 5,
-      shadowColor: Colors.black45,
-      child: InkWell(
-        onTap: () {},
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              colors: [Colors.purple.shade100, Colors.purple.shade300],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+                }),
+              ],
             ),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(iconData, size: 36, color: Colors.white),
-              const SizedBox(height: 10),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
+        ],
       ),
     );
   }

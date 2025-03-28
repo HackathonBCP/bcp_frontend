@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 class AutomateSaveViewScreen extends StatelessWidget {
   final double savingsThisMonth = 150;
   final double savingsGoal = 300;
-  final double dailySavings = 5.0;
+  final double currentPercentage = 3.0; // 3%
+  final double recommendedPercentage = 4.5; // 4.5%
   final int currentStreak = 24;
   final String category = "Educación";
 
@@ -19,8 +20,6 @@ class AutomateSaveViewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final progress = savingsThisMonth / savingsGoal;
-    final daysRemaining = DateTime.now().day;
-    final dailyTarget = (savingsGoal - savingsThisMonth) / daysRemaining;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -32,16 +31,17 @@ class AutomateSaveViewScreen extends StatelessWidget {
           children: [
             _buildCategoryCard(),
             const SizedBox(height: 24),
-            _buildProgressSection(progress),
+            _buildProgressSection(context, progress),
             const SizedBox(height: 24),
             _buildStreakSection(),
             const SizedBox(height: 24),
-            _buildDailySavingsSection(dailyTarget),
+            _buildPercentageSection(),
             const SizedBox(height: 24),
             _buildRewardsSection(),
             const SizedBox(height: 24),
             _buildTipSection(),
             const SizedBox(height: 24),
+            _buildActionButtons(context),
           ],
         ),
       ),
@@ -120,7 +120,7 @@ class AutomateSaveViewScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProgressSection(double progress) {
+  Widget _buildProgressSection(BuildContext context, double progress) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
       child: Container(
@@ -197,7 +197,7 @@ class AutomateSaveViewScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         const Text(
-                          'Ahorrados este mes',
+                          'Ahorrados',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey,
@@ -236,7 +236,7 @@ class AutomateSaveViewScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Meta mensual',
+                        'Meta',
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
@@ -258,7 +258,9 @@ class AutomateSaveViewScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/config');
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF9B4DFF),
                     foregroundColor: Colors.white,
@@ -275,16 +277,11 @@ class AutomateSaveViewScreen extends StatelessWidget {
                       Icon(Icons.auto_awesome, size: 20),
                       SizedBox(width: 8),
                       Text(
-                        'Ahorro automático activado',
+                        'Ahorro automático \ndiario activado',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
-                      ),
-                      SizedBox(width: 4),
-                      Text(
-                        '✨',
-                        style: TextStyle(fontSize: 16),
                       ),
                     ],
                   ),
@@ -357,29 +354,29 @@ class AutomateSaveViewScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDailySavingsSection(double dailyTarget) {
+  Widget _buildPercentageSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Ahorro diario",
+        const Text("Porcentaje de ahorro",
             style: TextStyle(
                 fontSize: 18, fontWeight: FontWeight.w800, color: _darkText)),
         const SizedBox(height: 16),
         Row(
           children: [
             Expanded(
-              child: _buildDailySavingsCard(
-                "Actual",
-                dailySavings,
+              child: _buildPercentageCard(
+                "Último",
+                currentPercentage,
                 Icons.trending_up,
                 _accentColor,
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: _buildDailySavingsCard(
-                "Recomendado",
-                dailyTarget,
+              child: _buildPercentageCard(
+                "Actual",
+                recommendedPercentage,
                 Icons.auto_awesome,
                 _successColor,
               ),
@@ -390,8 +387,8 @@ class AutomateSaveViewScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDailySavingsCard(
-      String title, double amount, IconData icon, Color color) {
+  Widget _buildPercentageCard(
+      String title, double percentage, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -412,7 +409,7 @@ class AutomateSaveViewScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          Text("S/ ${amount.toStringAsFixed(2)}",
+          Text("${percentage.toStringAsFixed(1)}%",
               style: const TextStyle(
                   fontSize: 20, fontWeight: FontWeight.w800, color: _darkText)),
         ],
@@ -557,6 +554,139 @@ class AutomateSaveViewScreen extends StatelessWidget {
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 height: 1.4),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: ElevatedButton(
+            onPressed: () {
+              _showDeleteCategoryDialog(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.red,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: Colors.red.withOpacity(0.3), width: 1),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.delete_outline, size: 20),
+                SizedBox(width: 8),
+                Text('Eliminar categoría'),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: ElevatedButton(
+            onPressed: () {
+              _showWithdrawDialog(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: _accentColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side:
+                    BorderSide(color: _accentColor.withOpacity(0.3), width: 1),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.money_off, size: 20),
+                SizedBox(width: 8),
+                Text('Retirar dinero'),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showDeleteCategoryDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Eliminar categoría'),
+        content: const Text(
+            '¿Estás seguro que deseas eliminar esta categoría de ahorro?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              // Aquí iría la lógica para eliminar la categoría
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Categoría eliminada correctamente'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showWithdrawDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Retirar dinero'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Ingrese el monto que desea retirar:'),
+            SizedBox(height: 16),
+            TextField(
+              decoration: InputDecoration(
+                prefixText: 'S/ ',
+                border: OutlineInputBorder(),
+                hintText: '0.00',
+              ),
+              keyboardType: TextInputType.number,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Retiro procesado correctamente'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _accentColor,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Confirmar retiro'),
           ),
         ],
       ),
